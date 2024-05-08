@@ -34,7 +34,11 @@ pipeline {
 
     post {
         always {
-            sh 'docker logout'
+            script {
+                docker.withServer("${ECR_REGISTRY}") {
+                    sh 'docker logout'
+                }
+            }
         }
     }
 }
