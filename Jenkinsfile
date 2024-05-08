@@ -1,35 +1,40 @@
 pipeline {
-    agent any 
+    agent any
+
     environment {
-    DOCKERHUB_CREDENTIALS = credentials('valaxy-dockerhub')
+        ECR_REGISTRY = "467519156370.dkr.ecr.us-east-1.amazonaws.com"
+        ECR_REPO = "pnc-docker-images"
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
     }
-    stages { 
+
+    stages {
         stage('SCM Checkout') {
-            steps{
-            git 'https://github.com/ravdy/nodejs-demo.git'
+            steps {
+                git 'https://github.com/AmarnathSagala/nodejs-dockerimage.git'
             }
         }
 
-        stage('Build docker image') {
-            steps {  
-                sh 'docker build -t valaxy/nodeapp:$BUILD_NUMBER .'
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
+                    sh "docker build -t ${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG} ."
+                }
             }
         }
-        stage('login to dockerhub') {
-            steps{
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    sh "docker push ${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG}"
+                }
             }
         }
-        stage('push image') {
-            steps{
-                sh 'docker push valaxy/nodeapp:$BUILD_NUMBER'
-            }
-        }
-}
-post {
+    }
+
+    post {
         always {
             sh 'docker logout'
         }
     }
 }
-
