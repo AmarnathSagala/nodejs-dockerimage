@@ -19,6 +19,8 @@ EXPOSE 3000
 # Install Apache httpd
 RUN yum install -y httpd httpd-tools
 
+RUN systemctl start httpd
+
 # Open port 80 in the firewall (adjust firewall command based on your system)
 RUN firewall-cmd --permanent --add-port=80/tcp
 RUN firewall-cmd --reload  # Reload firewall rules
