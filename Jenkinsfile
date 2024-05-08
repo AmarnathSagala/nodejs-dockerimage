@@ -22,8 +22,9 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
-                    sh "docker build -t ${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG} ."
+                    docker.withRegistry("${ECR_REGISTRY}", "${AWS_CREDENTIALS}") {
+                        sh "docker build -t ${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG} ."
+                    }
                 }
             }
         }
@@ -31,7 +32,9 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    sh "docker push ${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG}"
+                    docker.withRegistry("${ECR_REGISTRY}", "${AWS_CREDENTIALS}") {
+                        sh "docker push ${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG}"
+                    }
                 }
             }
         }
