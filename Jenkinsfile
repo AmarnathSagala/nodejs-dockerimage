@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        git 'Git' // Add this line to specify the Git installation
+        git 'Git'
     }
 
     environment {
