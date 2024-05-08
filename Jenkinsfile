@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        git 'Git' // Add this line to specify the Git installation
+    }
+
     environment {
         ECR_REGISTRY = "467519156370.dkr.ecr.us-east-1.amazonaws.com"
         ECR_REPO = "pnc-docker-images"
@@ -11,7 +15,7 @@ pipeline {
     stages {
         stage('SCM Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/AmarnathSagala/nodejs-dockerimage.git', executable: '/usr/bin/git'
+                git branch: 'main', url: 'https://github.com/AmarnathSagala/nodejs-dockerimage.git'
             }
         }
 
