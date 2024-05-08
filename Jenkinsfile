@@ -5,8 +5,8 @@ pipeline {
         ECR_REGISTRY = "467519156370.dkr.ecr.us-east-1.amazonaws.com"
         ECR_REPO = "pnc-docker-images"
         IMAGE_TAG = "${env.BUILD_NUMBER}"
+        AWS_CREDENTIALS = credentials('my-aws-creds')
     }
-
     stages {
         stage('SCM Checkout') {
             steps {
