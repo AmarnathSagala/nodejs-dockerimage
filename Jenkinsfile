@@ -11,7 +11,7 @@ pipeline {
     stages {
         stage('SCM Checkout') {
             steps {
-                git 'https://github.com/AmarnathSagala/nodejs-dockerimage.git'
+                git url: 'https://github.com/AmarnathSagala/nodejs-dockerimage.git', branch: 'main', tool: 'Git'
             }
         }
 
