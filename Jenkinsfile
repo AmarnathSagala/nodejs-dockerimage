@@ -7,6 +7,7 @@ pipeline {
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         AWS_CREDENTIALS = credentials('my-aws-creds')
     }
+
     stages {
         stage('SCM Checkout') {
             steps {
@@ -30,13 +31,13 @@ pipeline {
                 }
             }
         }
-    }
 
-    post {
-        always {
-            script {
-                docker.withServer("${ECR_REGISTRY}") {
-                    sh 'docker logout'
+        stage('Logout from Docker') {
+            steps {
+                script {
+                    docker.withServer("${ECR_REGISTRY}") {
+                        sh 'docker logout'
+                    }
                 }
             }
         }
