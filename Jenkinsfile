@@ -17,7 +17,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    withAWS(credentials: 'my-new-aws-creds', region: 'us-east-1') {
+                    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'my-new-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                         sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
                         sh "docker build -t ${ECR_REGISTRY}/${ECR_REPO}:${BUILD_NUMBER} ."
                     }
@@ -28,7 +28,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    withAWS(credentials: 'my-new-aws-creds', region: 'us-east-1') {
+                    withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'my-new-aws-creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                         sh "docker push ${ECR_REGISTRY}/${ECR_REPO}:${BUILD_NUMBER}"
                     }
                 }
