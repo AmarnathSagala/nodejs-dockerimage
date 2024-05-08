@@ -23,7 +23,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry("${ECR_REGISTRY}", "${AWS_CREDENTIALS}") {
-                        sh "docker build -t ${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG} ."
+                        sh "docker build -t ${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG}"
                     }
                 }
             }
