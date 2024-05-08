@@ -1,29 +1,25 @@
 pipeline {
     agent any
 
-    tools {
-        git 'Git'
-    }
-
     environment {
         ECR_REGISTRY = "467519156370.dkr.ecr.us-east-1.amazonaws.com"
         ECR_REPO = "pnc-docker-images"
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
-        AWS_CREDENTIALS = credentials('my-new-aws-creds')
+        GIT_URL = "https://github.com/AmarnathSagala/nodejs-dockerimage.git"
     }
 
     stages {
-        stage('SCM Checkout') {
+        stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/AmarnathSagala/nodejs-dockerimage.git'
+                git branch: 'main', url: "${GIT_URL}"
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.withRegistry("${ECR_REGISTRY}", "${AWS_CREDENTIALS}") {
-                        sh "docker build -t ${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG}"
+                    withAWS(credentials: 'my-new-aws-creds', region: 'us-east-1') {
+                        sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
+                        sh "docker build -t ${ECR_REGISTRY}/${ECR_REPO}:${BUILD_NUMBER} ."
                     }
                 }
             }
@@ -32,21 +28,17 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry("${ECR_REGISTRY}", "${AWS_CREDENTIALS}") {
-                        sh "docker push ${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG}"
+                    withAWS(credentials: 'my-new-aws-creds', region: 'us-east-1') {
+                        sh "docker push ${ECR_REGISTRY}/${ECR_REPO}:${BUILD_NUMBER}"
                     }
                 }
             }
         }
+    }
 
-        stage('Logout from Docker') {
-            steps {
-                script {
-                    docker.withServer("${ECR_REGISTRY}") {
-                        sh 'docker logout'
-                    }
-                }
-            }
+    post {
+        always {
+            sh 'docker logout'
         }
     }
 }
